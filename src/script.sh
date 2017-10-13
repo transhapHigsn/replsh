@@ -9,18 +9,14 @@ then
 fi    
  
 cleanup () {
-    rm -f ./replsh.java
-    if [ -f ./replsh.class ]
-    then
-        rm -f ./replsh.class
-    fi    
+    find . -type f -name replsh\* -delete    
+    find . -type f -name sed\* -delete
     echo "\nExiting shell."
     exit
 }
 
-touch ./replsh.java
-destFile=~/Desktop/Projects/repel/replsh.java 
-templateFile=~/Desktop/Projects/repel/template.txt
+destFile=~/Desktop/Projects/repel/src/replsh.java 
+templateFile=~/Desktop/Projects/repel/templates/template.txt
 progName=replsh.java
 
 cat $templateFile > $destFile
@@ -31,7 +27,6 @@ echo "You should begin typing your code now. Press Ctrl-C to exit.\n"
 counter=0
 while [ $counter -le 1000 ]
 do 
-    #echo $counter
     echo -n '>'
     counter=$((counter+=1))
     read input
@@ -40,25 +35,25 @@ do
 
     if [ -f "$destFile" ]
     then
-        head -n -2 replsh.java > temp.txt; mv temp.txt replsh.java
+        head -n -2 $destFile > temp.txt; mv temp.txt $destFile
         sed -i '/System.out/d' $destFile
 
         echo "$input" >> "$destFile"
         echo "}" >> "$destFile"
         echo "}" >> "$destFile"
             
-        if javac -classpath "." $progName;
+        if javac -cp ./src -d ./build ./src/$progName;
         then
-            if ! java replsh;
+            if ! java -cp ./build replsh;
             then
-                grep  -v "$input" "$destFile" > temp.txt; mv temp.txt replsh.java
-                #sed -i "/$input/d" $destFile
+                grep  -v "$input" "$destFile" > temp.txt; mv temp.txt $destFile
+                echo ""
             fi 
         else
-            sed -i "/$input/d" $destFile           
+            sed -i "/$input/d" $destFile
+            echo ""           
         fi
     fi    
 done    
 
-rm -f ./replsh.java
-exit
+cleanup
