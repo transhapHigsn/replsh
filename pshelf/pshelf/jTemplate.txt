@@ -1,0 +1,17 @@
+//imports
+import java.io.*;
+
+//interfaces
+
+//classes
+
+public class TempJava{
+//constructors
+//functions
+//blocks
+    
+    public static void main(String args[]) throws IOException{
+        
+//code
+    }
+}

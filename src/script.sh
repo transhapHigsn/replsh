@@ -1,5 +1,4 @@
 #!bin/bash
-#!bin/sh
 
 if ! command -v java;
 then
@@ -11,6 +10,7 @@ fi
 cleanup () {
     find . -type f -name replsh\* -delete    
     find . -type f -name sed\* -delete
+    find . -type f -name "*.class" -delete
     echo "\nExiting shell."
     exit
 }
@@ -29,7 +29,8 @@ while [ $counter -le 1000 ]
 do 
     echo -n '>'
     counter=$((counter+=1))
-    read input
+    read -e input
+    history -s "$input"
 
     trap cleanup INT TERM QUIT
 
@@ -38,7 +39,25 @@ do
         head -n -2 $destFile > temp.txt; mv temp.txt $destFile
         sed -i '/System.out/d' $destFile
 
-        echo "$input" >> "$destFile"
+        #if [[ $input =~ .*import.* ]] only for bash
+        
+        if echo "$input" | grep -q "import"
+        then
+            sed -i "/\/\/import/a $input" $destFile
+        elif echo "$input" | grep -q "interface"
+        then
+            sed -i "/\/\/interface/a $input" $destFile
+        elif echo "$input" | grep -q "function"
+        then
+            sed -i "/\/\/function/a $input" $destFile
+        elif echo "$input" | grep -q "constructor"
+        then
+            sed -i "/\/\/constructor/a $input" $destFile           
+        else    
+            echo "$input" >> "$destFile"
+        fi
+
+        #cat $destFile    
         echo "}" >> "$destFile"
         echo "}" >> "$destFile"
             
